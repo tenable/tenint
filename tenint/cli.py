@@ -8,6 +8,7 @@ from rich.console import Console
 from rich.panel import Panel
 from typer import Option, Typer
 
+from tenint.models.marketplace import MarketplaceConnector
 from tenint.models.pyproject import PyProject
 
 console = Console()
@@ -111,8 +112,11 @@ def build_connector(
         dockerfile.unlink()
 
 
-@app.command()
+@app.command('marketplace')
 def gen_marketplace(
     path: Annotated[Path, Option(help='connector code path')] = Path('.'),
 ):
-    pass
+    mpfile = path.joinpath('marketplace.json')
+    with mpfile.open('w', encoding='utf-8') as fobj:
+        mp = MarketplaceConnector.load_from_pyproject('pyproject.toml')
+        fobj.write(mp.model_dump_json())

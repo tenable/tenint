@@ -33,7 +33,7 @@ support = "https://example.com/support"
 name = "Company, Inc."
 
 # Support contact email for any issues with the connector.
-email = "suppoert@example.com"
+email = "support@example.com"
 
 [project.optional-dependencies]
 # Any testing libraries that need to be installed to support

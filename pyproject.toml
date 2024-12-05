@@ -1,6 +1,6 @@
 [project]
+dynamic = ["version"]
 name = "tenint"
-version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -34,8 +34,15 @@ testing = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.hatch.version]
+path = "tenint/__init__.py"
+
 [tool.hatch.build.targets.sdist]
-include = ["tenint/*py", "tenint/templates"]
+include = [
+    "tenint/*py",
+    "tenint/models/*py",
+    "tenint/templates"
+]
 
 [tool.uv]
 dev-dependencies = [

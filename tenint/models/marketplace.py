@@ -43,14 +43,14 @@ class MarketplaceConnector(BaseModel):
         else:
             if isinstance(filename, str):
                 filename = Path(filename)
-            with filename.open('rb') as fobj:
-                obj = PyProject(**tomllib.load(pf))
+            with filename.open("rb") as fobj:
+                obj = PyProject(**tomllib.load(fobj))
         return cls(
             name=obj.tool.tenint.connector.title,
             slug=obj.project.name,
             description=obj.project.description,
             icon_url=obj.project.urls.logo,
-            image_url=obj.project.connector.images.amd64,
+            image_url=obj.tool.tenint.connector.images.amd64,
             marketplace_tag=obj.project.version,
             connector_owner=obj.project.authors[0].name,
             support_contact=obj.project.authors[0].email,

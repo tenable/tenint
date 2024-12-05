@@ -21,12 +21,13 @@ class TenintConnectorUrls(BaseModel):
 
 class Project(BaseModel):
     name: str
+    description: str
     version: str
     authors: list[ProjectAuthor]
     urls: TenintConnectorUrls
     dependencies: list[str]
     optional_dependencies: Annotated[
-        TestingDependencies, Field(alias='optional-dependencies')
+        TestingDependencies, Field(alias="optional-dependencies")
     ]
 
 
@@ -37,10 +38,8 @@ class TenintImages(BaseModel):
 
 class TenintConnector(BaseModel):
     title: str
-    products: list[str]
+    tags: list[str]
     timeout: int = 3600
-    contact: EmailStr
-
     images: TenintImages
 
 
