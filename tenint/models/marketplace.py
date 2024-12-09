@@ -21,7 +21,10 @@ class MarketplaceConnector(BaseModel):
 
     @classmethod
     def load_from_pyproject(
-        cls, filename: PyProject | Path | str
+        cls,
+        filename: PyProject | Path | str,
+        image_url: str,
+        icon_url: str,
     ) -> MarketplaceConnector:
         """
         Builds the marketplace object off of the PyProject file.
@@ -43,14 +46,14 @@ class MarketplaceConnector(BaseModel):
         else:
             if isinstance(filename, str):
                 filename = Path(filename)
-            with filename.open("rb") as fobj:
+            with filename.open('rb') as fobj:
                 obj = PyProject(**tomllib.load(fobj))
         return cls(
             name=obj.tool.tenint.connector.title,
             slug=obj.project.name,
             description=obj.project.description,
-            icon_url=obj.project.urls.logo,
-            image_url=obj.tool.tenint.connector.images.amd64,
+            icon_url=icon_url,
+            image_url=image_url,
             marketplace_tag=obj.project.version,
             connector_owner=obj.project.authors[0].name,
             support_contact=obj.project.authors[0].email,

@@ -19,12 +19,6 @@ dependencies = [
 ]
 
 [project.urls]
-# The repository URL for the codebase of the connector.
-repository = "https://github.com/example/connector"
-
-# The SVG image logo to use display the marketplace for this connector.
-logo = "https://raw.githubusercontent.com/example/connector/refs/head/main/logo.svg"
-
 # The URL that points to any further support information or ticketing.
 support = "https://example.com/support"
 
@@ -49,7 +43,3 @@ tags = ['tvm', 'example']
 
 # The default maximum run time in seconds
 timeout = 3600
-
-[tool.tenint.connector.images]
-# The x86 64bit connector image path
-amd64 = "example/connector"

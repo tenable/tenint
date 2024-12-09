@@ -10,7 +10,7 @@ def credential_schema(schema: dict[str, Any]) -> None:
     A simple function to remove the attributes that shouldn't be part of the UI schema
     from the schema itself.
     """
-    for attr in ('prefix', 'name', 'slug', 'definition'):
+    for attr in ('prefix', 'name', 'slug', 'definition', 'description'):
         schema.get('properties', {}).pop(attr, None)
 
 
@@ -20,6 +20,7 @@ class Credential(BaseModel):
     """
 
     model_config = ConfigDict(json_schema_extra=credential_schema)
+    description: str
     prefix: str
     name: str
     slug: str
@@ -40,6 +41,7 @@ class TenableVMCredential(Credential):
         'Tenable Vulnerability Management'
     )
     slug: Literal['tvm'] = 'tvm'
+    description: str = 'Tenable Vulnerability Management Credential'
     url: AnyHttpUrl = 'https://cloud.tenable.com'
     access_key: str
     secret_key: str
@@ -53,6 +55,7 @@ class TenableSCCredential(Credential):
     prefix: Literal['tio'] = 'tsc'
     name: Literal['Tenable Security Center'] = 'Tenable Security Center'
     slug: Literal['tvm'] = 'tsc'
+    description: str = 'Tenable Security Center Credential'
     url: AnyHttpUrl
     access_key: str
     secret_key: str

@@ -14,8 +14,6 @@ class ProjectAuthor(BaseModel):
 
 
 class TenintConnectorUrls(BaseModel):
-    repository: AnyHttpUrl
-    logo: AnyHttpUrl
     support: AnyHttpUrl
 
 
@@ -27,20 +25,14 @@ class Project(BaseModel):
     urls: TenintConnectorUrls
     dependencies: list[str]
     optional_dependencies: Annotated[
-        TestingDependencies, Field(alias="optional-dependencies")
+        TestingDependencies, Field(alias='optional-dependencies')
     ]
-
-
-class TenintImages(BaseModel):
-    amd64: str
-    arm64: str | None = None
 
 
 class TenintConnector(BaseModel):
     title: str
     tags: list[str]
     timeout: int = 3600
-    images: TenintImages
 
 
 class Tenint(BaseModel):

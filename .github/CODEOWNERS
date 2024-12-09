@@ -1,2 +1,2 @@
-# any approval goes through the following
-* @tenable/ecosystem-approvers
+* @tenable/integrations-team
+.github/workflows/* @tenable/infosec
