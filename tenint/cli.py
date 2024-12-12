@@ -114,6 +114,8 @@ def build_connector(
 
 @app.command('marketplace')
 def gen_marketplace(
+    image: Annotated[str, Option(..., help='Docker Image Name')],
+    icon: Annotated[str, Option(..., help='Icon Image URL')],
     path: Annotated[Path, Option(help='connector code path')] = Path('.'),
 ):
     mpfile = path.joinpath('marketplace.json')

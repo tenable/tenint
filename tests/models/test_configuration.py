@@ -12,6 +12,7 @@ def config():
         name: str = 'test'
         prefix: str = 'test'
         slug: str = 'test'
+        description: str = 'example'
         username: str
         password: str
 

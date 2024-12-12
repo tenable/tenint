@@ -6,6 +6,7 @@ def test_base_credential_model():
         prefix: str = 'test'
         name: str = 'Test Credential'
         slug: str = 'test'
+        description: str = 'Example'
         username: str
         password: str
         url: str = 'https://test.url.local'
@@ -16,6 +17,7 @@ def test_base_credential_model():
     assert cred.slug == 'test'
     assert cred.username == 'user'
     assert cred.password == 'pass'
+    assert cred.description == 'Example'
     assert cred.url == 'https://test.url.local'
     assert cred.definition == {
         'properties': {
