@@ -41,7 +41,11 @@ class TenableVMCredential(Credential):
         'Tenable Vulnerability Management'
     )
     slug: Literal['tvm'] = 'tvm'
+<<<<<<< HEAD
     description: str = 'Tenable Vulnerability Management Credential'
+=======
+    definition: str = 'Tenable Vulnerability Management Credential'
+>>>>>>> fe11665 (Updated Credentials to include description)
     url: AnyHttpUrl = 'https://cloud.tenable.com'
     access_key: str
     secret_key: str
@@ -55,7 +59,11 @@ class TenableSCCredential(Credential):
     prefix: Literal['tio'] = 'tsc'
     name: Literal['Tenable Security Center'] = 'Tenable Security Center'
     slug: Literal['tvm'] = 'tsc'
+<<<<<<< HEAD
     description: str = 'Tenable Security Center Credential'
+=======
+    definition: str = 'Tenable Security Center Credential'
+>>>>>>> fe11665 (Updated Credentials to include description)
     url: AnyHttpUrl
     access_key: str
     secret_key: str
