@@ -18,7 +18,9 @@ app = Typer()
 
 @app.command('init')
 def init_connector(
-    path: Annotated[Path, Option(help='initialization path')] = Path('.'),
+    path: Annotated[
+        Path, Option(help='initialization path', dir_okay=True, file_okay=False)
+    ] = Path('.'),
 ):
     is_dirty = False
     for fn in ('pyproject.toml', 'connector.py'):
@@ -35,16 +37,16 @@ def init_connector(
             with src.open('rb') as sobj, dest.open('wb') as dobj:
                 dobj.write(sobj.read())
 
-    tests = dest.joinpath('tests')
+    tests = path.joinpath('tests')
     if not tests.exists():
         tests.mkdir()
-        src = tests.joinpath('test_connector.py')
-        dest = tmpl.joinpath('test_connector.py')
+        src = tmpl.joinpath('test_connector.py')
+        dest = tests.joinpath('test_connector.py')
         with dest.open('wb') as dobj, src.open('rb') as sobj:
             dobj.write(sobj.read())
     else:
         console.print(
-            '[yellow bold]NOTE[/yellod bold]: skipped adding tests.  tests folder exists.'
+            '[yellow bold]NOTE[/yellow bold]: skipped adding tests.  tests folder exists.'
         )
 
     console.print(

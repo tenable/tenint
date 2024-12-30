@@ -1,6 +1,6 @@
-from typing import Any, Self
+from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, computed_field
 
 from .credentials import Credential
 

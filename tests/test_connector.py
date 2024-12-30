@@ -24,7 +24,7 @@ def AppSettings():
 
 @pytest.fixture
 def main():
-    def main(config: dict[str, Any]):
+    def main(config: dict[str, Any], since: int | None = None):
         log = logging.getLogger('main-test')
         log.debug('This is a debug test')
         log.info('This is an info test')
@@ -119,7 +119,7 @@ def test_connector_run_fail(AppSettings):
     connector = Connector(settings=AppSettings)
 
     @connector.job
-    def failmain(config: dict):
+    def failmain(config: dict, since: None = None):
         raise Exception('I have failed')
 
     result = runner.invoke(connector.app, ['run', '-j', '{"is_bool": true}'])
