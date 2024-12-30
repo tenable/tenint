@@ -1,6 +1,9 @@
 .DS_Store
 __pycache__
 *.pyc
+.*_cache
 .coverage
-.secrets
+.env
 .vars
+.secrets
+requirements.txt

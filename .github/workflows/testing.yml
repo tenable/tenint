@@ -24,14 +24,8 @@ jobs:
         run: uv run ruff check tenint --exit-zero
 
       - name: Run unit tests
-        run: uv run pytest tests --cov-report xml:cov/coverage.xml
+        run: uv run pytest tests --cov-report term-missing
 
-      - name: Save Coverage Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage_report
-          path: cov
-          retention-days: 1
 
   security_tests:
     runs-on: ubuntu-latest
@@ -47,7 +41,11 @@ jobs:
       - uses: snyk/actions/setup@master
       - name: Export a requirements file for Snyk
         run: |
-          uv export --format requirements-txt | uv tool run pip-audit
-          
-      - name: Run Bandit code auditor
-        run: uv tool run --with "bandit[toml,baseline,sarif]" bandit -c pyproject.toml -r . -ll
+          uv pip compile pyproject.toml -o requirements.txt
+          pip3 install -r requirements.txt
+      - name: Snyk Scan
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: test --command=python3 --skip-unresolved=true
