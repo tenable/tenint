@@ -200,6 +200,15 @@ class Connector:
                 case_sensitive=False,
             ),
         ] = LogLevel.info,
+        since: Annotated[
+            int | None,
+            Option(
+                '--since',
+                '-s',
+                envvar='SINCE',
+                help='When did the last successful run start?',
+            ),
+        ] = None,
     ):
         """
         Invoke the connector
@@ -214,7 +223,7 @@ class Connector:
 
         try:
             config = self.fetch_config(json_data, filename)
-            self.main(config=config)
+            self.main(config=config, since=since)
         except (ValidationError, ConfigurationError) as exc:
             self.console.print(exc)
             status_code = 2

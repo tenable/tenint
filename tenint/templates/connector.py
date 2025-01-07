@@ -22,7 +22,7 @@ connector = Connector(settings=AppSettings, credentials=[TestCredential])
 
 
 @connector.job
-def main(config: AppSettings):
+def main(config: AppSettings, since: int | None = None):
     log.debug('This is a debug test')
     log.info('this is an info test')
     log.warning('this is a warning')

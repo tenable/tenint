@@ -3,7 +3,7 @@ from __future__ import annotations
 import tomllib
 from pathlib import Path
 
-from pydantic import AnyHttpUrl, BaseModel, EmailStr, Field
+from pydantic import AnyHttpUrl, BaseModel, EmailStr
 
 from .pyproject import PyProject
 
@@ -14,6 +14,7 @@ class MarketplaceConnector(BaseModel):
     description: str
     icon_url: AnyHttpUrl
     image_url: str
+    timeout: int
     marketplace_tag: str
     connector_owner: str
     support_contact: EmailStr
@@ -54,6 +55,7 @@ class MarketplaceConnector(BaseModel):
             description=obj.project.description,
             icon_url=icon_url,
             image_url=image_url,
+            timeout=obj.tool.tenint.connector.timeout,
             marketplace_tag=obj.project.version,
             connector_owner=obj.project.authors[0].name,
             support_contact=obj.project.authors[0].email,
