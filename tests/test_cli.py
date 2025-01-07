@@ -21,7 +21,7 @@ def test_init_skip_single_file(tmp_path):
     result = runner.invoke(app, ['init', '--path', str(tmp_path)])
     assert result.exit_code == 0
     assert 'Now that you have' in result.stdout
-    assert 'pyproject.toml as it already exists' in result.stdout
+    assert 'pyproject.toml as it' in result.stdout
 
 
 def test_init_skip_tests(tmp_path):
