@@ -116,11 +116,20 @@ def build_connector(
 
 @app.command('marketplace')
 def gen_marketplace(
-    image: Annotated[str, Option(..., help='Docker Image Name')],
-    icon: Annotated[str, Option(..., help='Icon Image URL')],
+    image: Annotated[
+        str, Option(..., help='Docker Image Name')
+    ] = 'local/connector-example',
+    icon: Annotated[
+        str, Option(..., help='Icon Image URL')
+    ] = 'https://nourl.example/logo.svg',
     path: Annotated[Path, Option(help='connector code path')] = Path('.'),
+    output: Annotated[Path, Option(help='output marketplace json file')] = None,
 ):
-    mpfile = path.joinpath('marketplace.json')
-    with mpfile.open('w', encoding='utf-8') as fobj:
-        mp = MarketplaceConnector.load_from_pyproject('pyproject.toml')
-        fobj.write(mp.model_dump_json())
+    mpfile = path.joinpath('marketplace-object.json')
+    mp = MarketplaceConnector.load_from_pyproject(
+        filename='pyproject.toml', image_url=image, icon_url=icon
+    ).model_dump(mode='json')
+    console.print(mp)
+    if output:
+        with mpfile.open('w', encoding='utf-8') as fobj:
+            fobj.write(mp.model_dump_json())
