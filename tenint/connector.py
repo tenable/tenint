@@ -20,8 +20,11 @@ from rich.logging import RichHandler
 from typer import Exit, Option, Typer
 from typer.main import get_command_name
 
+from .models.callback import CallbackResponse
 from .models.configuration import Configuration, Settings
 from .models.credentials import Credential
+
+logger = logging.getLogger('tenint.connector')
 
 
 class ConfigurationError(Exception):
@@ -61,7 +64,6 @@ class Connector:
     ):
         self.app = Typer(add_completion=False)
         self.console = Console()
-
         self.settings = settings
         self.defaults = (
             defaults if defaults else settings.model_construct().model_dump()
@@ -215,25 +217,53 @@ class Connector:
         """
         logging.basicConfig(
             level=log_level.upper(),
-            format='%(asctime)s %(levelname)s %(message)s',
+            format='%(name)s: %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S',
-            handlers=[RichHandler(console=self.console, rich_tracebacks=True)],
+            handlers=[
+                RichHandler(
+                    console=self.console,
+                    rich_tracebacks=True,
+                    omit_repeated_times=False,
+                )
+            ],
         )
         status_code = 0
+        resp = None
 
+        # Attempt to run the connector job and handle any errors that may be thrown
+        # in a graceful way.
         try:
             config = self.fetch_config(json_data, filename)
-            self.main(config=config, since=since)
-        except (ValidationError, ConfigurationError) as exc:
-            self.console.print(exc)
+            resp = self.main(config=config, since=since)
+        except (ValidationError, ConfigurationError) as _:
+            logging.error('Invalid configuration presented', exc_info=True)
             status_code = 2
         except Exception as _:
-            self.console.print_exception()
+            logging.error('Job run failed with an error', exc_info=True)
             status_code = 1
 
+        # Set the Callback payload to the job response if the response is a dictionary
+        try:
+            payload = CallbackResponse(exit_code=status_code, **resp).model_dump(
+                mode='json'
+            )
+        except (ValidationError, TypeError) as _:
+            logger.error(f'Job response format is invalid: {resp=}')
+            payload = CallbackResponse(exit_code=status_code).model_dump(mode='json')
+
+        # If a callback and a job id have been set, then we will initiate a callback
+        # to the job manager with the response payload of the job to inform the manager
+        # that we have finished.
         if job_id and callback_url:
-            requests.post(callback_url, headers={'X-Job-ID': job_id})
-            self.console.log(f'Called back to {callback_url=} with {job_id=}')
+            requests.post(
+                callback_url,
+                headers={'X-Job-ID': job_id},
+                json=payload,
+            )
+            logger.info(f'Called back to {callback_url=} with {job_id=} and {payload=}')
         else:
-            self.console.print('Did not initiate a callback!', style='bold orange1')
+            logger.warning('Did not initiate a callback!')
+        self.console.print(f'callback={payload}')
+
+        # Exit the connector with the status code from the runner.
         raise Exit(code=status_code)

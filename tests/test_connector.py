@@ -99,13 +99,19 @@ def test_connector_validation(AppSettings):
     assert 'Not yet implemented' in result.stdout
 
 
-def test_connector_run(AppSettings, main):
+def test_connector_run(AppSettings, main, caplog):
     connector = Connector(settings=AppSettings)
     connector.job(main)
-    result = runner.invoke(connector.app, ['run', '-j', '{"is_bool": true}'])
-    assert result.exit_code == 0
-    assert 'hello world' in result.stdout
-    assert 'Did not initiate a callback!' in result.stdout
+    with caplog.at_level(logging.INFO):
+        result = runner.invoke(connector.app, ['run', '-j', '{"is_bool": true}'])
+        assert result.exit_code == 0
+        assert 'hello world' in result.stdout
+        assert 'This is a debug test' not in caplog.text
+        assert 'This is an info test' in caplog.text
+        assert 'This is an error test' in caplog.text
+        assert 'Job response format is invalid' in caplog.text
+        assert 'Did not initiate a callback!' in caplog.text
+        assert 'callback={' in result.stdout
 
 
 def test_connector_run_config_fail(AppSettings, main):
@@ -115,39 +121,42 @@ def test_connector_run_config_fail(AppSettings, main):
     assert result.exit_code == 2
 
 
-def test_connector_run_fail(AppSettings):
+def test_connector_run_fail(AppSettings, caplog):
     connector = Connector(settings=AppSettings)
 
     @connector.job
     def failmain(config: dict, since: None = None):
         raise Exception('I have failed')
 
-    result = runner.invoke(connector.app, ['run', '-j', '{"is_bool": true}'])
-    assert result.exit_code == 1
-    assert 'I have failed' in result.stdout
+    with caplog.at_level(logging.INFO):
+        result = runner.invoke(connector.app, ['run', '-j', '{"is_bool": true}'])
+        assert result.exit_code == 1
+        assert 'I have failed' in caplog.text
 
 
 @responses.activate
-def test_connector_callback(AppSettings, main):
+def test_connector_callback(AppSettings, main, caplog):
     responses.post(
         'http://callback-url.local/callback',
         match=[matchers.header_matcher({'X-Job-ID': 'abcdef'})],
     )
     connector = Connector(settings=AppSettings)
     connector.job(main)
-    result = runner.invoke(
-        connector.app,
-        [
-            'run',
-            '-j',
-            '{"is_bool": true}',
-            '-J',
-            'abcdef',
-            '-c',
-            'http://callback-url.local/callback',
-        ],
-    )
-    assert result.exit_code == 0
-    assert 'Called back' in result.stdout
-    assert "callback_url='http://callback-url.local/callback'" in result.stdout
-    assert "job_id='abcdef'" in result.stdout
+
+    with caplog.at_level(logging.INFO):
+        result = runner.invoke(
+            connector.app,
+            [
+                'run',
+                '-j',
+                '{"is_bool": true}',
+                '-J',
+                'abcdef',
+                '-c',
+                'http://callback-url.local/callback',
+            ],
+        )
+        assert result.exit_code == 0
+        assert 'Called back' in caplog.text
+        assert "callback_url='http://callback-url.local/callback'" in caplog.text
+        assert "job_id='abcdef'" in caplog.text

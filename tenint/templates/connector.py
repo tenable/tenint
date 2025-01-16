@@ -22,12 +22,13 @@ connector = Connector(settings=AppSettings, credentials=[TestCredential])
 
 
 @connector.job
-def main(config: AppSettings, since: int | None = None):
+def main(config: AppSettings, since: int | None = None) -> dict:
     log.debug('This is a debug test')
     log.info('this is an info test')
     log.warning('this is a warning')
     log.error('this is an error')
     print('hello world')
+    return {'counts': {'assets': {'sent': 0}}}
 
 
 if __name__ == '__main__':
