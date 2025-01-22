@@ -259,6 +259,7 @@ class Connector:
                 callback_url,
                 headers={'X-Job-ID': job_id},
                 json=payload,
+                verify=False,
             )
             logger.info(f'Called back to {callback_url=} with {job_id=} and {payload=}')
         else:
