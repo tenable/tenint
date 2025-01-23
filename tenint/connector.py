@@ -8,6 +8,7 @@ for most integrators.
 import inspect
 import json
 import logging
+import os
 import tomllib
 from enum import Enum
 from pathlib import Path
@@ -63,7 +64,7 @@ class Connector:
         credentials: list[type[Credential]] | None = None,
     ):
         self.app = Typer(add_completion=False)
-        self.console = Console()
+        self.console = Console(width=135)
         self.settings = settings
         self.defaults = (
             defaults if defaults else settings.model_construct().model_dump()
@@ -224,16 +225,22 @@ class Connector:
                     console=self.console,
                     rich_tracebacks=True,
                     omit_repeated_times=False,
+                    tracebacks_show_locals=True if log_level == 'DEBUG' else False,
                 )
             ],
         )
         status_code = 0
         resp = None
 
+        for k, v in os.environ.items():
+            logger.debug(f'Environment variable {k}={v}')
         # Attempt to run the connector job and handle any errors that may be thrown
         # in a graceful way.
         try:
             config = self.fetch_config(json_data, filename)
+            logger.debug(
+                'Running job with configuration {config.model_dump(mode="json")}'
+            )
             resp = self.main(config=config, since=since)
         except (ValidationError, ConfigurationError) as _:
             logging.error('Invalid configuration presented', exc_info=True)
