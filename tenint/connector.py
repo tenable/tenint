@@ -17,7 +17,6 @@ from typing import Annotated, Callable
 import requests
 from pydantic import BaseModel, ValidationError
 from rich.console import Console
-from rich.logging import RichHandler
 from typer import Exit, Option, Typer
 from typer.main import get_command_name
 
@@ -25,7 +24,7 @@ from .models.callback import CallbackResponse
 from .models.configuration import Configuration, Settings
 from .models.credentials import Credential
 
-logger = logging.getLogger('tenint.connector')
+logger = logging.getLogger("tenint.connector")
 
 
 class ConfigurationError(Exception):
@@ -33,12 +32,12 @@ class ConfigurationError(Exception):
 
 
 class LogLevel(str, Enum):
-    notset = 'notset'
-    debug = 'debug'
-    info = 'info'
-    warning = 'warning'
-    error = 'error'
-    critical = 'critical'
+    notset = "notset"
+    debug = "debug"
+    info = "info"
+    warning = "warning"
+    error = "error"
+    critical = "critical"
 
 
 class Connector:
@@ -64,7 +63,7 @@ class Connector:
         credentials: list[type[Credential]] | None = None,
     ):
         self.app = Typer(add_completion=False)
-        self.console = Console(width=135)
+        self.console = Console(width=135, force_interactive=False)
         self.settings = settings
         self.defaults = (
             defaults if defaults else settings.model_construct().model_dump()
@@ -80,8 +79,8 @@ class Connector:
         #
         # e.g. cmd_config -> config
         for method, func in inspect.getmembers(self, predicate=inspect.ismethod):
-            if method.startswith('cmd_'):
-                name = get_command_name(method.removeprefix('cmd_'))
+            if method.startswith("cmd_"):
+                name = get_command_name(method.removeprefix("cmd_"))
                 self.app.command(name=name)(func)
 
     def job(self, func: Callable) -> Callable:
@@ -90,6 +89,21 @@ class Connector:
         """
         self.main = func
         return func
+
+    def log_env_vars(self) -> None:
+        clean = []
+
+        # Build the hidden list
+        for cred in self.credentials:
+            schema = cred.schema()
+            for item, props in schema["properties"].items():
+                if props.get("format") == "password":
+                    clean.append(f"{cred.prefix}_{item}".upper())
+
+        for key, value in os.environ.items():
+            if key in clean:
+                value = "{{ HIDDEN }}"
+            logger.debug(f'EnvVar {key}="{value}"')
 
     def fetch_config(
         self,
@@ -112,24 +126,25 @@ class Connector:
 
         # If a file has been passed in instead an the suffix appears to be a JSON
         # suffix, then we will assume a JSON file and handle accordingly.
-        elif fn and fn.is_file() and fn.suffix.lower() in ['.json', '.jsn']:
-            with fn.open('r', encoding='utf-8') as fobj:
+        elif fn and fn.is_file() and fn.suffix.lower() in [".json", ".jsn"]:
+            with fn.open("r", encoding="utf-8") as fobj:
                 settings = self.settings(**json.load(fobj))
 
         # If the file passed has a TOML suffix, we will process as a toml file through
         # tomllib.
-        elif fn and fn.is_file() and fn.suffix.lower() in ['.toml', '.tml']:
-            with fn.open('rb') as fobj:
+        elif fn and fn.is_file() and fn.suffix.lower() in [".toml", ".tml"]:
+            with fn.open("rb") as fobj:
                 settings = self.settings(**tomllib.load(fobj))
 
         # If we processed anything, then return the settings object, otherwise raise a
         # ConfigurationError
         if settings:
+            logger.debug(f"Job config={settings.model_dump(mode='json')}")
             return settings
-        raise ConfigurationError('No valid configurations passed.')
+        raise ConfigurationError("No valid configurations passed.")
 
     def cmd_config(
-        self, pretty: Annotated[bool, Option(help='Pretty format the response')] = False
+        self, pretty: Annotated[bool, Option(help="Pretty format the response")] = False
     ):
         """
         Return the connector configuration
@@ -144,7 +159,7 @@ class Connector:
 
         self.console.print_json(
             Config(defaults=self.defaults).model_dump_json(
-                include=['settings', 'credentials', 'defaults']
+                include=["settings", "credentials", "defaults"]
             ),
             indent=indent,
         )
@@ -153,63 +168,63 @@ class Connector:
         """
         Validate the connector settings and credentials
         """
-        self.console.print('Not yet implemented')
+        self.console.print("Not yet implemented")
 
     def cmd_run(
         self,
         json_data: Annotated[
             str | None,
             Option(
-                '--json',
-                '-j',
-                envvar='CONFIG_JSON',
-                help='The JSON config object as a string',
+                "--json",
+                "-j",
+                envvar="CONFIG_JSON",
+                help="The JSON config object as a string",
             ),
         ] = None,
         filename: Annotated[
             Path | None,
             Option(
-                '--filename',
-                '-f',
-                envvar='CONFIG_FILENAME',
-                help='Filename of either a json or toml file containing the job config',
+                "--filename",
+                "-f",
+                envvar="CONFIG_FILENAME",
+                help="Filename of either a json or toml file containing the job config",
             ),
         ] = None,
         job_id: Annotated[
             str | None,
             Option(
-                '--job-id',
-                '-J',
-                envvar='JOB_ID',
-                help='The unique job id of this invocation',
+                "--job-id",
+                "-J",
+                envvar="JOB_ID",
+                help="The unique job id of this invocation",
             ),
         ] = None,
         callback_url: Annotated[
             str | None,
             Option(
-                '--callback',
-                '-c',
-                envvar='CALLBACK_URL',
-                help='The URL the connector should call back to when it completes',
+                "--callback",
+                "-c",
+                envvar="CALLBACK_URL",
+                help="The URL the connector should call back to when it completes",
             ),
         ] = None,
         log_level: Annotated[
             LogLevel,
             Option(
-                '--log-level',
-                '-l',
-                envvar='LOG_LEVEL',
-                help='Sets the logging verbosity for the job',
+                "--log-level",
+                "-l",
+                envvar="LOG_LEVEL",
+                help="Sets the logging verbosity for the job",
                 case_sensitive=False,
             ),
         ] = LogLevel.info,
         since: Annotated[
             int | None,
             Option(
-                '--since',
-                '-s',
-                envvar='SINCE',
-                help='When did the last successful run start?',
+                "--since",
+                "-s",
+                envvar="SINCE",
+                help="When did the last successful run start?",
             ),
         ] = None,
     ):
@@ -218,45 +233,34 @@ class Connector:
         """
         logging.basicConfig(
             level=log_level.upper(),
-            format='%(name)s: %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S',
-            handlers=[
-                RichHandler(
-                    console=self.console,
-                    rich_tracebacks=True,
-                    omit_repeated_times=False,
-                    tracebacks_show_locals=True if log_level == 'DEBUG' else False,
-                )
-            ],
+            format="%(asctime)s %(name)s(%(filename)s:%(lineno)d): %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
         )
+        self.log_env_vars()
         status_code = 0
         resp = None
 
-        for k, v in os.environ.items():
-            logger.debug(f'Environment variable {k}={v}')
         # Attempt to run the connector job and handle any errors that may be thrown
         # in a graceful way.
         try:
             config = self.fetch_config(json_data, filename)
-            logger.debug(
-                'Running job with configuration {config.model_dump(mode="json")}'
-            )
             resp = self.main(config=config, since=since)
-        except (ValidationError, ConfigurationError) as _:
-            logging.error('Invalid configuration presented', exc_info=True)
+        except (ValidationError, ConfigurationError) as e:
+            logging.error(f"Invalid configuration presented: {e}")
             status_code = 2
         except Exception as _:
-            logging.error('Job run failed with an error', exc_info=True)
+            logging.error("Job run failed with an error")
+            self.console.print_exception(show_locals=log_level == "debug")
             status_code = 1
 
         # Set the Callback payload to the job response if the response is a dictionary
         try:
             payload = CallbackResponse(exit_code=status_code, **resp).model_dump(
-                mode='json'
+                mode="json"
             )
         except (ValidationError, TypeError) as _:
-            logger.error(f'Job response format is invalid: {resp=}')
-            payload = CallbackResponse(exit_code=status_code).model_dump(mode='json')
+            logger.error(f"Job response format is invalid: {resp=}")
+            payload = CallbackResponse(exit_code=status_code).model_dump(mode="json")
 
         # If a callback and a job id have been set, then we will initiate a callback
         # to the job manager with the response payload of the job to inform the manager
@@ -264,14 +268,14 @@ class Connector:
         if job_id and callback_url:
             requests.post(
                 callback_url,
-                headers={'X-Job-ID': job_id},
+                headers={"X-Job-ID": job_id},
                 json=payload,
                 verify=False,
             )
-            logger.info(f'Called back to {callback_url=} with {job_id=} and {payload=}')
+            logger.info(f"Called back to {callback_url=} with {job_id=} and {payload=}")
         else:
-            logger.warning('Did not initiate a callback!')
-        self.console.print(f'callback={payload}')
+            logger.warning("Did not initiate a callback!")
+        self.console.print(f"callback={payload}")
 
         # Exit the connector with the status code from the runner.
         raise Exit(code=status_code)
