@@ -40,17 +40,15 @@ class Credential(BaseModel):
         return resp
 
 
-class TenableVMCredential(Credential):
+class TenableCloudCredential(Credential):
     """
-    Tenable Vulnerability Management Credential
+    Tenable Cloud Credential
     """
 
     prefix: Literal["tio"] = "tio"
-    name: Literal["Tenable Vulnerability Management"] = (
-        "Tenable Vulnerability Management"
-    )
+    name: Literal["Tenable Cloud"] = "Tenable Cloud"
     slug: Literal["tvm"] = "tvm"
-    description: str = "Tenable Vulnerability Management Credential"
+    description: str = "Tenable Cloud Credential"
     url: AnyHttpUrl = "https://cloud.tenable.com"
     access_key: str
     secret_key: SecretStr
