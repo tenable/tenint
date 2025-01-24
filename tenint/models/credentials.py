@@ -10,8 +10,8 @@ def credential_schema(schema: dict[str, Any]) -> None:
     A simple function to remove the attributes that shouldn't be part of the UI schema
     from the schema itself.
     """
-    for attr in ('prefix', 'name', 'slug', 'definition', 'description'):
-        schema.get('properties', {}).pop(attr, None)
+    for attr in ("prefix", "name", "slug", "definition", "description"):
+        schema.get("properties", {}).pop(attr, None)
 
 
 class Credential(BaseModel):
@@ -30,19 +30,28 @@ class Credential(BaseModel):
     def definition(self) -> dict[str, Any]:
         return self.model_json_schema()
 
+    @classmethod
+    def env_secrets(cls) -> list[str]:
+        resp = []
+        schema = cls.schema()
+        for name, props in schema["properties"].items():
+            if props.get("format") == "password":
+                resp.append(f"{cls.prefix}_{name}".upper())
+        return resp
+
 
 class TenableVMCredential(Credential):
     """
     Tenable Vulnerability Management Credential
     """
 
-    prefix: Literal['tio'] = 'tio'
-    name: Literal['Tenable Vulnerability Management'] = (
-        'Tenable Vulnerability Management'
+    prefix: Literal["tio"] = "tio"
+    name: Literal["Tenable Vulnerability Management"] = (
+        "Tenable Vulnerability Management"
     )
-    slug: Literal['tvm'] = 'tvm'
-    description: str = 'Tenable Vulnerability Management Credential'
-    url: AnyHttpUrl = 'https://cloud.tenable.com'
+    slug: Literal["tvm"] = "tvm"
+    description: str = "Tenable Vulnerability Management Credential"
+    url: AnyHttpUrl = "https://cloud.tenable.com"
     access_key: str
     secret_key: SecretStr
 
@@ -52,10 +61,10 @@ class TenableSCCredential(Credential):
     Tenable Security Center Credential
     """
 
-    prefix: Literal['tio'] = 'tsc'
-    name: Literal['Tenable Security Center'] = 'Tenable Security Center'
-    slug: Literal['tvm'] = 'tsc'
-    description: str = 'Tenable Security Center Credential'
+    prefix: Literal["tio"] = "tsc"
+    name: Literal["Tenable Security Center"] = "Tenable Security Center"
+    slug: Literal["tvm"] = "tsc"
+    description: str = "Tenable Security Center Credential"
     url: AnyHttpUrl
     access_key: str
     secret_key: SecretStr
