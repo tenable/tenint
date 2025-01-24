@@ -6,7 +6,7 @@ from .credentials import Credential
 
 
 class Settings(BaseModel):
-    model_config = ConfigDict(extra='forbid')
+    model_config = ConfigDict(extra="forbid")
 
 
 class Configuration(BaseModel):
@@ -24,8 +24,8 @@ class Configuration(BaseModel):
     def credentials(self) -> list[dict[str, Any]]:
         return [
             C.model_construct().model_dump(
-                mode='json',
-                include=['name', 'slug', 'prefix', 'definition'],
+                mode="json",
+                include=["name", "slug", "prefix", "definition"],
             )
             for C in self.credential_models
         ]

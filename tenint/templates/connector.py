@@ -6,30 +6,30 @@ from tenint import Connector, Credential, Settings
 
 
 class TestCredential(Credential):
-    prefix: str = 'test'
-    name: str = 'Test Credential'
-    slug: str = 'test'
+    prefix: str = "test"
+    name: str = "Test Credential"
+    slug: str = "test"
     api_key: str
-    url: AnyHttpUrl = 'https://httpbin.org/get'
+    url: AnyHttpUrl = "https://httpbin.org/get"
 
 
 class AppSettings(Settings):
     is_bool: bool = True
 
 
-log = logging.getLogger('test-connector')
+log = logging.getLogger("test-connector")
 connector = Connector(settings=AppSettings, credentials=[TestCredential])
 
 
 @connector.job
 def main(config: AppSettings, since: int | None = None) -> dict:
-    log.debug('This is a debug test')
-    log.info('this is an info test')
-    log.warning('this is a warning')
-    log.error('this is an error')
-    print('hello world')
-    return {'counts': {'assets': {'sent': 0}}}
+    log.debug("This is a debug test")
+    log.info("this is an info test")
+    log.warning("this is a warning")
+    log.error("this is an error")
+    print("hello world")
+    return {"counts": {"assets": {"sent": 0}}}
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     connector.app()
