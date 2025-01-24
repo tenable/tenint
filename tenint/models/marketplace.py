@@ -47,7 +47,7 @@ class MarketplaceConnector(BaseModel):
         else:
             if isinstance(filename, str):
                 filename = Path(filename)
-            with filename.open('rb') as fobj:
+            with filename.open("rb") as fobj:
                 obj = PyProject(**tomllib.load(fobj))
         return cls(
             name=obj.tool.tenint.connector.title,

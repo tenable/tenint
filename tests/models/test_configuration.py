@@ -9,10 +9,10 @@ def config():
         is_true: bool = True
 
     class TestCredential(Credential):
-        name: str = 'test'
-        prefix: str = 'test'
-        slug: str = 'test'
-        description: str = 'example'
+        name: str = "test"
+        prefix: str = "test"
+        slug: str = "test"
+        description: str = "example"
         username: str
         password: str
 
@@ -26,26 +26,26 @@ def config():
 
 def test_config(config):
     assert config.settings == {
-        'properties': {
-            'is_true': {'default': True, 'title': 'Is True', 'type': 'boolean'}
+        "properties": {
+            "is_true": {"default": True, "title": "Is True", "type": "boolean"}
         },
-        'title': 'TestSettings',
-        'type': 'object',
-        'additionalProperties': False,
+        "title": "TestSettings",
+        "type": "object",
+        "additionalProperties": False,
     }
     assert config.credentials == [
         {
-            'prefix': 'test',
-            'name': 'test',
-            'slug': 'test',
-            'definition': {
-                'properties': {
-                    'username': {'title': 'Username', 'type': 'string'},
-                    'password': {'title': 'Password', 'type': 'string'},
+            "prefix": "test",
+            "name": "test",
+            "slug": "test",
+            "definition": {
+                "properties": {
+                    "username": {"title": "Username", "type": "string"},
+                    "password": {"title": "Password", "type": "string"},
                 },
-                'required': ['username', 'password'],
-                'title': 'TestCredential',
-                'type': 'object',
+                "required": ["username", "password"],
+                "title": "TestCredential",
+                "type": "object",
             },
         }
     ]

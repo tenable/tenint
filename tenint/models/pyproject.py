@@ -25,7 +25,7 @@ class Project(BaseModel):
     urls: TenintConnectorUrls
     dependencies: list[str]
     optional_dependencies: Annotated[
-        TestingDependencies, Field(alias='optional-dependencies')
+        TestingDependencies, Field(alias="optional-dependencies")
     ]
 
 
