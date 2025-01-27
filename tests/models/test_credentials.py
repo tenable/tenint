@@ -1,4 +1,8 @@
-from tenint.models.credentials import Credential
+from tenint.models.credentials import (
+    Credential,
+    TenableCloudCredential,
+    TenableSCCredential,
+)
 
 
 def test_base_credential_model():
@@ -47,3 +51,17 @@ def test_base_credential_model():
         "title": "TestCredential",
         "type": "object",
     }
+
+
+def test_tenable_cloud_cred():
+    assert TenableCloudCredential.model_fields["prefix"].default == "tio"
+    assert TenableCloudCredential.model_fields["name"].default == "Tenable Cloud"
+    assert TenableCloudCredential.model_fields["slug"].default == "tvm"
+    assert TenableCloudCredential.env_secrets() == ["TIO_SECRET_KEY"]
+
+
+def test_tenable_sc_cred():
+    assert TenableSCCredential.model_fields["prefix"].default == "tsc"
+    assert TenableSCCredential.model_fields["name"].default == "Tenable Security Center"
+    assert TenableSCCredential.model_fields["slug"].default == "tsc"
+    assert TenableSCCredential.env_secrets() == ["TSC_SECRET_KEY"]

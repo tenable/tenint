@@ -95,10 +95,7 @@ class Connector:
 
         # Build the hidden list
         for cred in self.credentials:
-            schema = cred.schema()
-            for item, props in schema["properties"].items():
-                if props.get("format") == "password":
-                    clean.append(f"{cred.prefix}_{item}".upper())
+            clean += cred.env_secrets()
 
         for key, value in os.environ.items():
             if key in clean:

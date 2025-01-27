@@ -33,10 +33,11 @@ class Credential(BaseModel):
     @classmethod
     def env_secrets(cls) -> list[str]:
         resp = []
-        schema = cls.schema()
+        schema = cls.model_json_schema()
+        prefix = cls.model_fields["prefix"].default
         for name, props in schema["properties"].items():
             if props.get("format") == "password":
-                resp.append(f"{cls.prefix}_{name}".upper())
+                resp.append(f"{prefix}_{name}".upper())
         return resp
 
 
@@ -59,9 +60,9 @@ class TenableSCCredential(Credential):
     Tenable Security Center Credential
     """
 
-    prefix: Literal["tio"] = "tsc"
+    prefix: Literal["tsc"] = "tsc"
     name: Literal["Tenable Security Center"] = "Tenable Security Center"
-    slug: Literal["tvm"] = "tsc"
+    slug: Literal["tsc"] = "tsc"
     description: str = "Tenable Security Center Credential"
     url: AnyHttpUrl
     access_key: str
