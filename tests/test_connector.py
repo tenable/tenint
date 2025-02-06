@@ -113,7 +113,7 @@ def test_connector_run(AppSettings, main, caplog):
         assert "This is an error test" in caplog.text
         assert "Job response format is invalid" in caplog.text
         assert "Did not initiate a callback!" in caplog.text
-        assert "callback={" in result.stdout
+        assert "callback={" in caplog.text
 
 
 def test_connector_run_config_fail(AppSettings, main):
@@ -133,7 +133,7 @@ def test_connector_run_fail(AppSettings, caplog):
     with caplog.at_level(logging.INFO):
         result = runner.invoke(connector.app, ["run", "-j", '{"is_bool": true}'])
         assert result.exit_code == 1
-        assert "I have failed" in result.stdout
+        assert "I have failed" in caplog.text
 
 
 @responses.activate

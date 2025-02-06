@@ -16,7 +16,9 @@ from typing import Annotated, Callable
 
 import requests
 from pydantic import BaseModel, ValidationError
+from rich import print, print_json
 from rich.console import Console
+from rich.logging import RichHandler
 from typer import Exit, Option, Typer
 from typer.main import get_command_name
 
@@ -62,8 +64,9 @@ class Connector:
         defaults: Settings | None = None,
         credentials: list[type[Credential]] | None = None,
     ):
+        self.logfile = Path("job.log").absolute()
+        self.console = Console(file=self.logfile.open("a", encoding="utf-8"), width=135)
         self.app = Typer(add_completion=False)
-        self.console = Console(width=135, force_interactive=False)
         self.settings = settings
         self.defaults = (
             defaults if defaults else settings.model_construct().model_dump()
@@ -154,7 +157,7 @@ class Connector:
             settings_model: type[Settings] = self.settings
             credential_models: list[type[Credential]] = self.credentials
 
-        self.console.print_json(
+        print_json(
             Config(defaults=self.defaults).model_dump_json(
                 include=["settings", "credentials", "defaults"]
             ),
@@ -165,7 +168,7 @@ class Connector:
         """
         Validate the connector settings and credentials
         """
-        self.console.print("Not yet implemented")
+        print("Not yet implemented")
 
     def cmd_run(
         self,
@@ -230,10 +233,23 @@ class Connector:
         """
         logging.basicConfig(
             level=log_level.upper(),
-            format="%(asctime)s %(name)s(%(filename)s:%(lineno)d): %(message)s",
+            # format="%(asctime) %(name)s(%(filename)s:%(lineno)d): %(message)s",
+            format="%(name)s: %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S",
+            handlers=[
+                # logging.FileHandler("job.log"),
+                RichHandler(
+                    console=self.console,
+                    show_path=False,
+                    rich_tracebacks=True,
+                    tracebacks_show_locals=True,
+                    omit_repeated_times=False,
+                ),
+                logging.StreamHandler(),
+            ],
         )
         self.log_env_vars()
+        logger.info(f"Logging to {self.logfile}")
         status_code = 0
         resp = None
 
@@ -246,8 +262,7 @@ class Connector:
             logging.error(f"Invalid configuration presented: {e}")
             status_code = 2
         except Exception as _:
-            logging.error("Job run failed with an error")
-            self.console.print_exception(show_locals=log_level == "debug")
+            logging.exception("Job run failed with error", stack_info=2)
             status_code = 1
 
         # Set the Callback payload to the job response if the response is a dictionary
@@ -272,7 +287,7 @@ class Connector:
             logger.info(f"Called back to {callback_url=} with {job_id=} and {payload=}")
         else:
             logger.warning("Did not initiate a callback!")
-        self.console.print(f"callback={payload}")
+        logger.info(f"callback={payload}")
 
         # Exit the connector with the status code from the runner.
         raise Exit(code=status_code)
