@@ -1,6 +1,7 @@
 import logging
+from typing import Annotated
 
-from pydantic import AnyHttpUrl
+from pydantic import AnyHttpUrl, Field
 
 from tenint import Connector, Credential, Settings
 
@@ -9,12 +10,21 @@ class TestCredential(Credential):
     prefix: str = "test"
     name: str = "Test Credential"
     slug: str = "test"
-    api_key: str
-    url: AnyHttpUrl = "https://httpbin.org/get"
+    api_key: Annotated[
+        str,
+        Field(title="API Key", description="Application API Key"),
+    ]
+    url: Annotated[
+        AnyHttpUrl,
+        Field(title="Application URL", description="Application URL"),
+    ] = "https://httpbin.org/get"
 
 
 class AppSettings(Settings):
-    is_bool: bool = True
+    is_bool: Annotated[
+        bool,
+        Field(title="Yes?", description="An example boolean flag"),
+    ] = True
 
 
 log = logging.getLogger("test-connector")
