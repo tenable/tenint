@@ -75,6 +75,7 @@ unfixable = [ "B" ]
 
 [tool.ruff.format]
 line-ending = "lf"
+#quote-style="single"
 docstring-code-format = false
 docstring-code-line-length = "dynamic"
 

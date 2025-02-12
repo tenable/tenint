@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field
 
@@ -7,6 +7,7 @@ from .credentials import Credential
 
 class Settings(BaseModel):
     model_config = ConfigDict(extra="forbid")
+    log_level: Literal["INFO", "DEBUG"] = "INFO"
 
 
 class Configuration(BaseModel):

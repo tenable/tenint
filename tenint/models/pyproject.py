@@ -1,6 +1,7 @@
-from typing import Annotated
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
+from pydantic.functional_validators import model_validator
 from pydantic.networks import AnyHttpUrl, EmailStr
 
 
@@ -29,10 +30,24 @@ class Project(BaseModel):
     ]
 
 
+class TenintConnectorTimeout(BaseModel):
+    min: int = 3600
+    default: int = 3600
+    max: int = 86400
+
+
+class TenintConnectorResources(BaseModel):
+    disk: int = 1024
+    memory: int = 1024
+    cpu_cores: int = 1
+
+
 class TenintConnector(BaseModel):
     title: str
     tags: list[str]
-    timeout: int = 3600
+    schedule_types: list[Literal["hourly", "daily"]] = ["daily"]
+    timeout: Annotated[TenintConnectorTimeout, Field(validate_default=True)] = {}
+    resources: Annotated[TenintConnectorResources, Field(validate_default=True)] = {}
 
 
 class Tenint(BaseModel):

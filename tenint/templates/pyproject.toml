@@ -42,4 +42,15 @@ title = "Example Connector"
 tags = ['tvm', 'example']
 
 # The default maximum run time in seconds
-timeout = 3600
+[tool.tenint.connector.timeout]
+default = 3600
+
+
+# This section defines the minimum resources necessary to run the
+# connector.  Below are the default values.  Disk and Memory values
+# are in Megabytes, where CPU Cores is is simply the number of cores
+# required to run the connector.
+[tool.tenint.connector.resources]
+disk = 1024
+memory = 1024
+cpu_cores = 1
