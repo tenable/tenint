@@ -27,7 +27,13 @@ def config():
 def test_config(config):
     assert config.settings == {
         "properties": {
-            "is_true": {"default": True, "title": "Is True", "type": "boolean"}
+            "is_true": {"default": True, "title": "Is True", "type": "boolean"},
+            "log_level": {
+                "default": "INFO",
+                "title": "Log Level",
+                "type": "string",
+                "enum": ["INFO", "DEBUG"],
+            },
         },
         "title": "TestSettings",
         "type": "object",

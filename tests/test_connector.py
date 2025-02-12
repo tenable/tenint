@@ -9,7 +9,7 @@ from rich.console import Console
 from typer import Typer
 from typer.testing import CliRunner
 
-from tenint.connector import ConfigurationError, Connector, Settings
+from tenint.connector import Connector, Settings
 
 runner = CliRunner()
 
@@ -40,7 +40,7 @@ def test_connector_init(AppSettings):
     assert isinstance(connector.console, Console)
     assert connector.settings == AppSettings
     assert connector.credentials == []
-    assert connector.defaults == {"is_bool": True}
+    assert connector.defaults == {"is_bool": True, "log_level": "INFO"}
 
 
 def test_connector_fetch_config_string_data(AppSettings):
@@ -48,24 +48,21 @@ def test_connector_fetch_config_string_data(AppSettings):
     assert connector.fetch_config(data='{"is_bool": true}')
 
 
-def test_connector_fetch_config_json_file(AppSettings, tmp_path):
-    fn = tmp_path.joinpath("example.json")
-    fn.write_text('{"is_bool": true}')
-    connector = Connector(settings=AppSettings)
-    assert connector.fetch_config(fn=fn) == AppSettings(is_bool=True)
+# No longer need to test file input as this functionality has been removed as it's
+# no longer necessary at this time.
+#
+# def test_connector_fetch_config_json_file(AppSettings, tmp_path):
+#     fn = tmp_path.joinpath("example.json")
+#     fn.write_text('{"is_bool": true}')
+#     connector = Connector(settings=AppSettings)
+#     assert connector.fetch_config(fn=fn) == AppSettings(is_bool=True)
 
 
-def test_connector_fetch_config_toml_file(AppSettings, tmp_path):
-    fn = tmp_path.joinpath("example.toml")
-    fn.write_text("is_bool = true")
-    connector = Connector(settings=AppSettings)
-    assert connector.fetch_config(fn=fn) == AppSettings(is_bool=True)
-
-
-def test_connector_fetch_config_failure(AppSettings):
-    connector = Connector(settings=AppSettings)
-    with pytest.raises(ConfigurationError):
-        connector.fetch_config()
+# def test_connector_fetch_config_toml_file(AppSettings, tmp_path):
+#     fn = tmp_path.joinpath("example.toml")
+#     fn.write_text("is_bool = true")
+#     connector = Connector(settings=AppSettings)
+#     assert connector.fetch_config(fn=fn) == AppSettings(is_bool=True)
 
 
 def test_connector_config_cli(AppSettings, main):
@@ -73,13 +70,19 @@ def test_connector_config_cli(AppSettings, main):
         "settings": {
             "additionalProperties": False,
             "properties": {
-                "is_bool": {"default": True, "title": "Is Bool", "type": "boolean"}
+                "log_level": {
+                    "default": "INFO",
+                    "enum": ["INFO", "DEBUG"],
+                    "title": "Log Level",
+                    "type": "string",
+                },
+                "is_bool": {"default": True, "title": "Is Bool", "type": "boolean"},
             },
             "title": "AppSettings",
             "type": "object",
         },
         "credentials": [],
-        "defaults": {"is_bool": True},
+        "defaults": {"is_bool": True, "log_level": "INFO"},
     }
     connector = Connector(settings=AppSettings)
     result = runner.invoke(connector.app, ["config"])
@@ -160,5 +163,5 @@ def test_connector_callback(AppSettings, main, caplog):
         )
         assert result.exit_code == 0
         assert "Called back" in caplog.text
-        assert "callback_url='http://callback-url.local/callback'" in caplog.text
+        assert "url='http://callback-url.local/callback'" in caplog.text
         assert "job_id='abcdef'" in caplog.text
